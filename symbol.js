@@ -55,6 +55,20 @@ class MyDate {
     return new Intl.ListFormat("pt-BR", { style: "long", type: "conjunction" }).format(items);
   }
 
+  *[Symbol.iterator]() {
+    for (const item of this[kItems]) {
+      yield item;
+    }
+  }
+
+  async *[Symbol.asyncIterator]() {
+    const timeout = (ms) => new Promise((r) => setTimeout(r, ms));
+    for (const item of this[kItems]) {
+      await timeout(100);
+      yield item.toISOString();
+    }
+  }
+
   get [Symbol.toStringTag]() {
     return "WHAT?";
   }
@@ -70,3 +84,22 @@ assert.throws(() => myDate + 1, TypeError);
 // coercao explicita para chamar o toPrimitive
 assert.deepStrictEqual(String(myDate), "01 de abril de 2020 e 02 de março de 2018");
 // console.log(String(myDate));
+
+// implementar o iterator
+assert.deepStrictEqual([...myDate], expectedDates);
+
+// (async () => {
+//   for await (const item of myDate) {
+//     console.log("asyncIterator", item);
+//   }
+// })();
+
+(async () => {
+  const dates = [];
+  for await (const date of myDate) {
+    // console.log(date, new Date().toISOString());
+    dates.push(date);
+  }
+  const expectedDatesInISOString = expectedDates.map((item) => item.toISOString());
+  assert.deepStrictEqual(dates, expectedDatesInISOString);
+})();
