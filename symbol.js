@@ -1,6 +1,6 @@
 const assert = require("assert");
 
-// --- keys
+// --- keys ---
 const uniqueKey = Symbol("userName");
 const user = {};
 
